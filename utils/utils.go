@@ -18,7 +18,7 @@ type Pos struct {
 	x, y int
 }
 
-var X, Y, Timer, MaxCoins = 1, 1, 100, 100
+var X, Y, Timer, MaxCoins = 1, 1, 100, 1000
 var Width, Height int
 var coins []Pos
 var B []byte
@@ -53,27 +53,23 @@ func DrawWithMath() {
 	fmt.Print("\033[2J\033[H" + string(B))
 }
 func Move(oldX, oldY int) {
-	if oldX == X && oldY == Y {
-		return
+	var s strings.Builder
+	fmt.Fprintf(&s, "\033[%d;%dHtimer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d ", Height+1, 0, Timer, X, Y, MaxCoins-len(coins), Width, Height)
+	if !(oldX == X && oldY == Y) {
+		fmt.Fprintf(&s, "\033[%d;%dH ", oldY, oldX)
+		j := 0
+		for _, coin := range coins {
+			if coin.x == X && coin.y == Y {
+				continue
+			}
+			coins[j] = coin
+			fmt.Fprintf(&s, "\033[%d;%dH0", coin.y, coin.x)
+			j++
+		}
+		coins = coins[:j]
+		fmt.Fprintf(&s, "\033[%d;%dH@", Y, X)
 	}
-	// Move cursor to old position and clear it
-	fmt.Printf("\033[%d;%dH ", oldY, oldX)
-
-	// Move cursor to new position and draw character
-	fmt.Printf("\033[%d;%dH@", Y, X)
-
-	// Update buffer
-	// B[Width*(oldY-1)+oldX] = ' '
-	// p := Width*(Y-1) + X
-	// if B[p] == ' ' {
-	// 	B[p] = '@'
-	// }
-	// B[Width*(oldY-1)+oldX] = ' '
-	// p := Width*(Y-1) + X
-	// if B[p] == ' ' {
-	// 	B[p] = '@'
-	// }
-	// fmt.Print("\033[H" + string(B))
+	fmt.Print(s.String())
 }
 func Draw() {
 	var s strings.Builder

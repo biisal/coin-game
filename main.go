@@ -13,6 +13,7 @@ import (
 
 func main() {
 	utils.GetTerm()
+	utils.MakeRandomCoins()
 	utils.X = rand.Intn(utils.Width)
 	utils.Y = rand.Intn(utils.Height)
 	oldState, err := term.MakeRaw(int(os.Stdout.Fd()))
@@ -57,13 +58,13 @@ func main() {
 			}
 		}
 	}()
-	utils.DrawWithMath()
+	utils.Move(0, 0)
 	for {
 		select {
 		case <-quit:
 			return
 		case <-redraw:
-			// utils.DrawWithMath()
+			utils.Move(utils.X, utils.Y)
 		}
 	}
 
