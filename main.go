@@ -24,13 +24,14 @@ func main() {
 		fmt.Print("\x1b[?25h")
 		term.Restore(int(os.Stdout.Fd()), oldState)
 	}()
-	fmt.Print("\033[?1049h")
-	fmt.Print("\x1b[?25l")
-	utils.MakeRandomCoins()
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Print("\033[?1049h")
+	fmt.Print("\x1b[?25l")
+
 	quit, redraw := make(chan bool), make(chan bool, 1)
+	redraw <- true
 	go func() {
 		for range utils.Timer {
 			time.Sleep(time.Second)
@@ -50,20 +51,20 @@ func main() {
 			if input[0] == 'q' {
 				quit <- true
 			}
-
+			// var oldX, oldY = utils.X, utils.Y
 			if utils.SetPos(input[0]) {
-				// redraw <- true
-				utils.Draw()
+				// utils.Move(oldX, oldY)
+				utils.DrawWithMath()
 			}
 		}
 	}()
-	utils.Draw()
+	utils.DrawWithMath()
 	for {
 		select {
 		case <-quit:
 			return
 		case <-redraw:
-			utils.Draw()
+			utils.DrawWithMath()
 		}
 	}
 
