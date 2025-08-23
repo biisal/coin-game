@@ -53,12 +53,27 @@ func DrawWithMath() {
 	fmt.Print("\033[2J\033[H" + string(B))
 }
 func Move(oldX, oldY int) {
-	B[Width*(oldY-1)+oldX] = ' '
-	p := Width*(Y-1) + X
-	if B[p] == ' ' {
-		B[p] = '@'
+	if oldX == X && oldY == Y {
+		return
 	}
-	fmt.Print("\033[H" + string(B))
+	// Move cursor to old position and clear it
+	fmt.Printf("\033[%d;%dH ", oldY, oldX)
+
+	// Move cursor to new position and draw character
+	fmt.Printf("\033[%d;%dH@", Y, X)
+
+	// Update buffer
+	// B[Width*(oldY-1)+oldX] = ' '
+	// p := Width*(Y-1) + X
+	// if B[p] == ' ' {
+	// 	B[p] = '@'
+	// }
+	// B[Width*(oldY-1)+oldX] = ' '
+	// p := Width*(Y-1) + X
+	// if B[p] == ' ' {
+	// 	B[p] = '@'
+	// }
+	// fmt.Print("\033[H" + string(B))
 }
 func Draw() {
 	var s strings.Builder

@@ -51,10 +51,9 @@ func main() {
 			if input[0] == 'q' {
 				quit <- true
 			}
-			// var oldX, oldY = utils.X, utils.Y
+			var oldX, oldY = utils.X, utils.Y
 			if utils.SetPos(input[0]) {
-				// utils.Move(oldX, oldY)
-				utils.DrawWithMath()
+				utils.Move(oldX, oldY)
 			}
 		}
 	}()
@@ -64,7 +63,7 @@ func main() {
 		case <-quit:
 			return
 		case <-redraw:
-			utils.DrawWithMath()
+			// utils.DrawWithMath()
 		}
 	}
 
