@@ -7,15 +7,21 @@ import (
 )
 
 // Benchmark for DrawWithMath
-func BenchmarkDrawWithMath(b *testing.B) {
+//
+//	func BenchmarkDrawWithMath(b *testing.B) {
+//		for b.Loop() {
+//			utils.DrawWithMath()
+//		}
+//	}
+func BenchmarkMove(b *testing.B) {
 	for b.Loop() {
-		utils.DrawWithMath()
+		utils.Move(0, 0)
 	}
 }
 
 // Benchmark for Draw (builder version)
-func BenchmarkDraw(b *testing.B) {
-	for b.Loop() {
-		utils.Draw()
-	}
-}
+// func BenchmarkDraw(b *testing.B) {
+// 	for b.Loop() {
+// 		utils.Draw()
+// 	}
+// }

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"fmt"
 	"math/rand"
 	"os"
@@ -18,7 +17,7 @@ type Pos struct {
 	x, y int
 }
 
-var X, Y, Timer, MaxCoins = 1, 1, 100, 1000
+var X, Y, Timer, MaxCoins = 1, 1, 10, 4588
 var Width, Height int
 var coins []Pos
 var B []byte
@@ -31,30 +30,21 @@ func MakeRandomCoins() {
 	if Width*Height < MaxCoins {
 		MaxCoins = Width*Height - Width
 	}
-	for range MaxCoins {
-		coins = append(coins, Pos{x: rand.Intn(Width), y: rand.Intn(Height)})
-	}
-}
-func returnMatchedIdx(coins []Pos, x, y int) int {
-	for idx, coin := range coins {
-		if coin.x == x && coin.y == y {
-			return idx
+	var coinMap = make(map[Pos]bool)
+	counter := 0
+	for counter < MaxCoins {
+		pos := Pos{x: rand.Intn(Width), y: rand.Intn(Height)}
+		if _, ok := coinMap[pos]; ok {
+			continue
 		}
+		coinMap[pos] = true
+		coins = append(coins, pos)
+		counter++
 	}
-	return -1
-}
-func DrawWithMath() {
-	SpaceBytes := []byte(" ")
-	B = (bytes.Repeat(SpaceBytes, Width*Height))
-	p := Width*(Y-1) + X
-	B[p] = '@'
-	B = append(B, fmt.Sprintf("timer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d , P : %d", Timer, X, Y, MaxCoins-len(coins), Width, Height, p)...)
-
-	fmt.Print("\033[2J\033[H" + string(B))
 }
 func Move(oldX, oldY int) {
 	var s strings.Builder
-	fmt.Fprintf(&s, "\033[%d;%dHtimer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d ", Height+1, 0, Timer, X, Y, MaxCoins-len(coins), Width, Height)
+	fmt.Fprintf(&s, "\033[%d;%dHtimer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d , Coins : %d", Height+1, 0, Timer, X, Y, MaxCoins-len(coins), Width, Height, len(coins))
 	if !(oldX == X && oldY == Y) {
 		fmt.Fprintf(&s, "\033[%d;%dH ", oldY, oldX)
 		j := 0
@@ -70,41 +60,6 @@ func Move(oldX, oldY int) {
 		fmt.Fprintf(&s, "\033[%d;%dH@", Y, X)
 	}
 	fmt.Print(s.String())
-}
-func Draw() {
-	var s strings.Builder
-	dummyCoins := append([]Pos{}, coins...)
-	for i := range Height {
-		if i == 0 {
-			continue
-		}
-		for j := range Width {
-			isAppend := false
-			for idx, coin := range dummyCoins {
-				if i == coin.y && j == coin.x {
-					if rIdx := returnMatchedIdx(coins, X, Y); rIdx != -1 {
-						// s.WriteString("X")
-						coins = append(coins[:rIdx], coins[rIdx+1:]...)
-					} else {
-						dummyCoins = append(dummyCoins[:idx], dummyCoins[idx+1:]...)
-					}
-					s.WriteString("✦")
-					isAppend = true
-					break
-				}
-			}
-			if isAppend {
-				continue
-			}
-			if i == Y && j == X {
-				s.WriteString("✪")
-			} else {
-				s.WriteString(" ")
-			}
-		}
-	}
-	s.WriteString(fmt.Sprintf("timer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d", Timer, X, Y, MaxCoins-len(coins), Width, Height))
-	fmt.Print("\033[2J\033[H" + s.String())
 }
 func SetPos(input byte) bool {
 	changed := true
@@ -143,6 +98,29 @@ func HandleTermSizeChange() {
 			Y = Height - 1
 		}
 
-		DrawWithMath()
+		Move(X, Y)
 	}
+}
+func ShowResult() {
+	text := fmt.Sprintf("SCORE : %d", MaxCoins-len(coins))
+	textWidth := len(text)
+	s := strings.Builder{}
+	lineCount := 5
+	cursorX := (Width - textWidth) / 2
+	cursorY := (Height - lineCount) / 2
+	s.WriteString(fmt.Sprintf("\033[%d;%dH", cursorY, cursorX))
+	for i := range lineCount {
+		s.WriteString(fmt.Sprintf("\033[%d;%dH", cursorY+i, cursorX))
+		switch i {
+		case 0, lineCount - 1:
+			s.WriteString(strings.Repeat("-", textWidth*2))
+		case lineCount / 2:
+			s.WriteString(strings.Repeat(" ", textWidth/2))
+			s.WriteString(text)
+			s.WriteString(strings.Repeat(" ", textWidth/2))
+		default:
+			s.WriteString(strings.Repeat(" ", textWidth*2))
+		}
+	}
+	fmt.Print(s.String())
 }

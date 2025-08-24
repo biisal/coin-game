@@ -31,7 +31,7 @@ func main() {
 	fmt.Print("\033[?1049h")
 	fmt.Print("\x1b[?25l")
 
-	quit, redraw := make(chan bool), make(chan bool, 1)
+	showResult, redraw, quit := make(chan bool), make(chan bool, 1), make(chan bool)
 	redraw <- true
 	go func() {
 		for range utils.Timer {
@@ -39,7 +39,7 @@ func main() {
 			utils.Timer--
 			redraw <- true
 		}
-		quit <- true
+		showResult <- true
 	}()
 
 	go func() {
@@ -50,6 +50,13 @@ func main() {
 				continue
 			}
 			if input[0] == 'q' {
+				if utils.Timer == 0 {
+					showResult <- true
+					continue
+				}
+				showResult <- true
+			}
+			if input[0] == 0x1b {
 				quit <- true
 			}
 			var oldX, oldY = utils.X, utils.Y
@@ -61,11 +68,14 @@ func main() {
 	utils.Move(0, 0)
 	for {
 		select {
-		case <-quit:
-			return
+		case <-showResult:
+			utils.ShowResult()
 		case <-redraw:
 			utils.Move(utils.X, utils.Y)
+		case <-quit:
+			return
 		}
+
 	}
 
 }
