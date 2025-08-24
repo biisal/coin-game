@@ -17,7 +17,7 @@ type Pos struct {
 	x, y int
 }
 
-var X, Y, Timer, MaxCoins = 1, 1, 10, 300
+var X, Y, Timer, MaxCoins = 1, 1, 10, 30
 var Width, Height int
 var CoinsMap = make(map[Pos]bool)
 var B []byte
@@ -57,13 +57,7 @@ func MakeRandomCoins() {
 		counter++
 	}
 }
-func RemoveCoin(x, y int) bool {
-	if _, ok := CoinsMap[Pos{x: x, y: y}]; !ok {
-		return false
-	}
-	delete(CoinsMap, Pos{x: x, y: y})
-	return true
-}
+
 func InitCoins() {
 	var s strings.Builder
 	for coin := range CoinsMap {
@@ -80,10 +74,8 @@ func Move(oldX, oldY int) {
 	var s strings.Builder
 	fmt.Fprintf(&s, "\033[%d;%dH\033[K%s  |  Timer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d", Height+1, 0, Instraction, Timer, X, Y, MaxCoins-len(CoinsMap), Width, Height)
 	if !(oldX == X && oldY == Y) {
+		delete(CoinsMap, Pos{x: X, y: Y})
 		fmt.Fprintf(&s, "\033[%d;%dH ", oldY, oldX)
-		if RemoveCoin(X, Y) {
-			fmt.Fprintf(&s, "\033[%d;%dH ", Y, X)
-		}
 		fmt.Fprintf(&s, "\033[%d;%dH%s@%s", Y, X, BrightGreen, NC)
 	}
 	fmt.Print(s.String())

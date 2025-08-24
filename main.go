@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/biisal/fun-game/utils"
+	"github.com/biisal/coin-game/utils"
 	"golang.org/x/term"
 )
 
