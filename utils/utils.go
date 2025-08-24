@@ -11,8 +11,6 @@ import (
 	"syscall"
 )
 
-// odit depertment clark -
-
 type Pos struct {
 	x, y int
 }
@@ -72,7 +70,7 @@ func InitCoins() {
 
 func Move(oldX, oldY int) {
 	var s strings.Builder
-	fmt.Fprintf(&s, "\033[%d;%dH\033[K%s  |  Timer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d", Height+1, 0, Instraction, Timer, X, Y, MaxCoins-len(CoinsMap), Width, Height)
+	fmt.Fprintf(&s, "\033[%d;%dH\033[K%s | Timer: %d , X : %d , Y : %d , Score : %d , Width : %d , Height : %d", Height+1, 0, Instraction, Timer, X, Y, MaxCoins-len(CoinsMap), Width, Height)
 	if !(oldX == X && oldY == Y) {
 		delete(CoinsMap, Pos{x: X, y: Y})
 		fmt.Fprintf(&s, "\033[%d;%dH ", oldY, oldX)
