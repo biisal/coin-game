@@ -31,10 +31,14 @@ func main() {
 	fmt.Print("\033[?1049h")
 	fmt.Print("\x1b[?25l")
 
+	isResultShown := false
 	showResult, redraw, quit := make(chan bool), make(chan bool, 1), make(chan bool)
 	redraw <- true
 	go func() {
 		for range utils.Timer {
+			if isResultShown {
+				break
+			}
 			time.Sleep(time.Second)
 			utils.Timer--
 			redraw <- true
@@ -49,15 +53,16 @@ func main() {
 			if err != nil || n == 0 {
 				continue
 			}
-			if input[0] == 'q' {
-				if utils.Timer == 0 {
+			if input[0] == 0x1b || input[0] == 'q' {
+				if isResultShown {
+					quit <- true
+				} else {
 					showResult <- true
-					continue
 				}
-				showResult <- true
+				continue
 			}
-			if input[0] == 0x1b {
-				quit <- true
+			if isResultShown {
+				continue
 			}
 			var oldX, oldY = utils.X, utils.Y
 			if utils.SetPos(input[0]) {
@@ -65,11 +70,13 @@ func main() {
 			}
 		}
 	}()
+	utils.InitCoins()
 	utils.Move(0, 0)
 	for {
 		select {
 		case <-showResult:
 			utils.ShowResult()
+			isResultShown = true
 		case <-redraw:
 			utils.Move(utils.X, utils.Y)
 		case <-quit:
