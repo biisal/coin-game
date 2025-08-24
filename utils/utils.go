@@ -126,28 +126,32 @@ func HandleTermSizeChange() {
 			Y = Height - 1
 		}
 
+		InitCoins()
 		Move(X, Y)
 	}
 }
 func ShowResult() {
 	text := fmt.Sprintf("SCORE : %d IN %ds", MaxCoins-len(CoinsMap), InitTimer-Timer)
 	textWidth := len(text)
-	s := strings.Builder{}
+	boxWidth := textWidth + 8
 	lineCount := 5
-	cursorX := (Width - textWidth) / 2
+
+	s := strings.Builder{}
+	cursorX := (Width - boxWidth) / 2
 	cursorY := (Height - lineCount) / 2
-	s.WriteString(fmt.Sprintf("\033[%d;%dH", cursorY, cursorX))
+
 	for i := range lineCount {
 		s.WriteString(fmt.Sprintf("\033[%d;%dH", cursorY+i, cursorX))
 		switch i {
 		case 0, lineCount - 1:
-			s.WriteString(strings.Repeat("-", textWidth*2))
+			s.WriteString(strings.Repeat("-", boxWidth))
 		case lineCount / 2:
-			s.WriteString(strings.Repeat(" ", textWidth/2))
+			padding := (boxWidth - textWidth) / 2
+			s.WriteString(strings.Repeat(" ", padding))
 			s.WriteString(text)
-			s.WriteString(strings.Repeat(" ", textWidth/2))
+			s.WriteString(strings.Repeat(" ", padding))
 		default:
-			s.WriteString(strings.Repeat(" ", textWidth*2))
+			s.WriteString(strings.Repeat(" ", boxWidth))
 		}
 	}
 	fmt.Print(s.String())
